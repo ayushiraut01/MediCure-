@@ -69,3 +69,8 @@ const chatbotResponses = {
 📜 License
 This project is licensed under the MIT License.
 
+
+![Screenshot 2025-03-03 013203](https://github.com/user-attachments/assets/cb4261ed-b709-4593-be8e-f7b50f956f4d)
+
+
+
