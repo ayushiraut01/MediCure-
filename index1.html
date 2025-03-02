@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Health care</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+
+        .chat-circle {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: #007bff;
+            color: white;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 50px;
+            cursor: pointer;
+            font-size: 24px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .chat-box {
+            position: fixed;
+            bottom: 80px;
+            right: 20px;
+            width: 400px;
+            background: white;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            display: none;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .chat-header {
+            background: #007bff;
+            color: white;
+            padding: 10px;
+            text-align: center;
+        }
+
+        .chat-body {
+            height: 250px;
+            overflow-y: auto;
+            padding: 10px;
+        }
+
+        .chat-footer {
+            display: flex;
+            flex-direction: column;
+            padding: 10px;
+        }
+
+        .chat-footer select,
+        input,
+        button {
+            padding: 8px;
+            margin-top: 5px;
+            border: 1px solid #ccc;
+        }
+
+        .chat-footer button {
+            background: #007bff;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .suggestion-box {
+            background: #f9f9f9;
+            border: 1px solid #ccc;
+            max-height: 100px;
+            overflow-y: auto;
+        }
+
+        .suggestion-item {
+            padding: 5px;
+            cursor: pointer;
+        }
+
+        .suggestion-item:hover {
+            background: #ddd;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="chat-circle" id="chatButton">💬</div>
+    <div class="chat-box" id="chatBox">
+        <div class="chat-header">Axzen</div>
+        <div class="chat-body" id="chatBody">
+            <p><strong>Axzen:</strong> Welcome to Health Care! 🎨 How can I assist you today?</p>
+        </div>
+        <div class="chat-footer">
+            <select id="brandSelect" class="hidden" onchange="selectBrand()"></select>
+            <select id="modelSelect" class="hidden" onchange="selectModel()"></select>
+            <select id="yearSelect" class="hidden" onchange="selectYear()"></select>
+            <input type="text" id="userInput" placeholder="Type a message..." onkeyup="showSuggestions(event)"
+                onkeypress="handleKeyPress(event)">
+            <div class="suggestion-box" id="suggestionBox"></div>
+            <button onclick="sendMessage()">Send</button>
+        </div>
+    </div>
+
+    <script>
+        // Toggle chat box visibility
+        document.getElementById('chatButton').addEventListener('click', function () {
+            let chatBox = document.getElementById('chatBox');
+            chatBox.style.display = chatBox.style.display === 'none' || chatBox.style.display === '' ? 'block' : 'none';
+        });
+
+        // Chatbot responses
+        const chatbotResponses = {
+   
+            "hello": "Hi there! 🏥 How can I assist you with your health today?",
+            "symptom check": "Sure! Please tell me your symptoms, and I’ll help you understand them better.",
+            "fever": "A fever can be a sign of an infection. Are you also experiencing chills, headaches, or body aches?",
+            "headache": "Headaches can have various causes like stress, dehydration, or sinus issues. How severe is the pain on a scale of 1 to 10?",
+            "cough": "Is it a dry cough or a wet one with mucus? This helps in identifying possible causes.",
+            "suggest treatment": "While I can’t prescribe medication, I can suggest some home remedies and when to see a doctor.",
+            "health tips": "Staying hydrated, eating balanced meals, and regular exercise can greatly improve your health! Need tips on something specific?",
+            "goodbye": "Goodbye! Wishing you good health! 🏥",
+            "default": "I didn’t quite get that. Could you rephrase it?",
+            "symptom check": "Sure! Please tell me your symptoms, and I’ll help you understand them better.",
+  "fever": "A fever can be a sign of an infection. Are you also experiencing chills, headaches, or body aches?",
+  "headache": "Headaches can have various causes like stress, dehydration, or sinus issues. How severe is the pain on a scale of 1 to 10?",
+  "cough": "Is it a dry cough or a wet one with mucus? This helps in identifying possible causes.",
+  "suggest treatment": "While I can’t prescribe medication, I can suggest some home remedies and when to see a doctor.",
+  "emergency": "If you’re experiencing severe symptoms like chest pain or difficulty breathing, please call emergency services immediately.",
+  "health tips": "Staying hydrated, eating balanced meals, and regular exercise can greatly improve your health! Need tips on something specific?",
+  "healthy diet": "A balanced diet with fruits, vegetables, lean proteins, and whole grains is ideal. Need a sample meal plan?",
+  "exercise tips": "Consistency is key! Even a 30-minute walk daily can make a difference. Are you looking for beginner or advanced tips?",
+  "mental health": "Mental health is just as important as physical health! Practices like meditation and talking to someone you trust can help.",
+  "telemedicine": "Great! I can help you connect with a certified doctor for a virtual consultation.",
+  "appointment booking": "I can help you schedule an appointment. Please provide your preferred date and time.",
+  "reminder setup": "Got it! I can set reminders for medication, appointments, or exercise. What would you like to be reminded about?",
+  "track symptoms": "You can log your symptoms daily, and I’ll help you track patterns over time.",
+  "vaccine information": "Vaccines are essential for preventing diseases. Do you need information on a specific vaccine?",
+  "health records": "You can securely upload and access your health records anytime. Need help with that?",
+  "thank you": "You’re welcome! 🏥 Take care and reach out if you need anything else.",
+  "goodbye": "Goodbye! Wishing you good health! 🏥",
+  "default": "I didn’t quite get that. Could you rephrase it?"
+        };
+
+        function getBotResponse(userMessage) {
+            return chatbotResponses[userMessage.toLowerCase()] || chatbotResponses["default"];
+        }
+
+        function sendMessage() {
+            let inputField = document.getElementById('userInput');
+            let userText = inputField.value.trim();
+            if (!userText) return;
+
+            let chatBody = document.getElementById('chatBody');
+            chatBody.innerHTML += `<p><strong>You:</strong> ${userText}</p>`;
+            inputField.value = "";
+
+            let botResponse = getBotResponse(userText);
+            setTimeout(() => {
+                chatBody.innerHTML += `<p><strong>Axzen:</strong> ${botResponse}</p>`;
+                chatBody.scrollTop = chatBody.scrollHeight;
+            }, 500);
+        }
+
+        function showSuggestions(event) {
+            let inputField = document.getElementById('userInput');
+            let suggestionBox = document.getElementById('suggestionBox');
+            let userText = inputField.value.toLowerCase();
+
+            suggestionBox.innerHTML = "";
+            if (!userText) return;
+
+            let suggestions = Object.keys(chatbotResponses).filter(key => key.startsWith(userText));
+
+            suggestions.forEach(suggestion => {
+                let div = document.createElement('div');
+                div.classList.add('suggestion-item');
+                div.innerText = suggestion;
+                div.onclick = function () {
+                    inputField.value = suggestion;
+                    suggestionBox.innerHTML = "";
+                };
+                suggestionBox.appendChild(div);
+            });
+        }
+
+        function handleKeyPress(event) {
+            if (event.key === 'Enter') sendMessage();
+        }
+    </script>
+</body>
+
+</html>
