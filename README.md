@@ -27,6 +27,8 @@
 - **Language:** JavaScript  
 
 ---
+![Screenshot 2025-03-03 013203](https://github.com/user-attachments/assets/d2a0503b-f96b-416c-aed7-26a5d27ccca4)
+
 
 ## 🚀 Getting Started
 
@@ -70,7 +72,7 @@ const chatbotResponses = {
 This project is licensed under the MIT License.
 
 
-![Screenshot 2025-03-03 013203](https://github.com/user-attachments/assets/cb4261ed-b709-4593-be8e-f7b50f956f4d)
+
 
 
 
